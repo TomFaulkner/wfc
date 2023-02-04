@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import pytest
 
-from wfc.wfc import Board, Row, InvalidRow, InvalidColumn, nums
+from wfc.wfc import Board, InvalidRow, InvalidColumn, nums
 
 n = None
 

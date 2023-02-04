@@ -13,38 +13,6 @@ class InvalidRow(ValueError):
     pass
 
 
-@dataclass
-class Row:
-    row: list[int | None]
-    _current: int = 0
-    _stop: int = 9
-
-    def __post_init__(self):
-        assert len(self.row) == 9
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        cur = self._current
-        if self._current >= self._stop:
-            raise StopIteration()
-        self._current += 1
-        return self.row[cur]
-
-    def check_row(self):
-        if {1, 2, 3, 4, 5, 6, 7, 8, 9} != set(self.row):
-            raise InvalidRow()
-
-    def __getitem__(self, __name: str) -> int | None:
-        col = int(__name)
-        return self.row[col]
-
-    def __setitem__(self, __name: str, __value: int) -> None:
-        col = int(__name)
-        self.row[col] = __value
-
-
 nums = {1, 2, 3, 4, 5, 6, 7, 8, 9}
 
 
