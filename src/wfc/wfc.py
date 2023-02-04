@@ -69,10 +69,11 @@ class Board:
         if {1, 2, 3, 4, 5, 6, 7, 8, 9} != set(self.rows[row]):
             raise InvalidRow()
 
-    def cell_valid_options(self, x, y) -> list[int]:
-        self.valid_in_column(y)
-        self.valid_in_row(x)
-        self.valid_in_quadrent(quadrent)
+    def cell_valid_options(self, x, y) -> set[int]:
+        c = self.valid_in_column(y)
+        r = self.valid_in_row(x)
+        q = self.valid_in_quadrent(self.which_quadrent(x, y))
+        return c.intersection(r.intersection(q))
 
     def valid_in_column(self, y: int) -> set[int]:
         return nums - set(self._rm_none(self.get_column(y)))
@@ -80,6 +81,39 @@ class Board:
     def valid_in_row(self, x: int) -> set[int]:
         row_values = set(self._rm_none(self.rows[x]))
         return set(nums - row_values)
+
+    def which_quadrent(self, x: int, y: int) -> int:
+        def section(val: int):
+            match val:
+                case (0 | 1 | 2):
+                    return 1
+                case (3 | 4 | 5):
+                    return 2
+                case (6 | 7 | 8):
+                    return 3
+
+        super_col = section(x)
+        super_row = section(y)
+        match super_col, super_row:
+            case [1, 1]:
+                return 1
+            case [1, 2]:
+                return 2
+            case [1, 3]:
+                return 3
+            case [2, 1]:
+                return 4
+            case [2, 2]:
+                return 5
+            case [2, 3]:
+                return 6
+            case [3, 1]:
+                return 7
+            case [3, 2]:
+                return 8
+            case [3, 3]:
+                return 9
+        raise ValueError(f"Not a valid x, y? {x}, {y}")
 
     def get_quadrent(self, q: int) -> list[list[int]]:
         x_top = {"ys": 0, "ye": 2}
@@ -119,7 +153,19 @@ class Board:
     def valid_in_quadrent(self, q: int) -> set[int]:
         return nums - self.vals_in_quadrent(q)
 
+    def empty_cells(self) -> list[tuple[int, int]]:
+        empties = []
+        for x, row in enumerate(self.rows):
+            for y, col in enumerate(row):
+                if col is None:
+                    empties.append((x, y))
+
+        return empties
+
     def solve(self):
+        # iterate over empty cells
+        # populate one with a valid number
+        # repeat
         pass
 
     @staticmethod

@@ -32,6 +32,18 @@ sudoku_with_a_row = [
     [n, n, 2, n, 1, n, 8, 6, 7],
 ]
 
+sudoku_with_more_populated_board = [
+    [n, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, n, 3, 4, n, 6, 7, n, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+]
+
 
 @pytest.fixture
 def board():
@@ -100,3 +112,21 @@ def test_board_vals_in_quadrent(board):
 
 def test_board_valid_in_quadrent(board):
     assert board.valid_in_quadrent(5) == {1, 2, 3, 7, 9}
+
+
+def test_board_which_quadrent(board):
+    assert board.which_quadrent(4, 4) == 5
+
+
+def test_board_cell_valid_options(board):
+    assert board.cell_valid_options(4, 4) == {2, 3, 9}
+
+
+def test_board_empty_cells(board):
+    board = Board(sudoku_with_more_populated_board.copy())
+    assert board.empty_cells() == [
+        (0, 0),
+        (4, 1),
+        (4, 4),
+        (4, 7),
+    ]
