@@ -223,15 +223,11 @@ def solve(board: Board) -> tuple[Board, int]:
     iteration = 0
     while not working.check_board(False)[0]:
         try:
-            print("w1")
             while working.empty_cells():
                 iteration += 1
-                print("iter: ", iteration)
                 empties = working.empty_cells()
                 next_cell = least_empties(empties, working)[0][0]
 
-                print("w2", next_cell, empties)
-                print(next_cell, working.valid_in_cell(next_cell[0], next_cell[1]))
                 valid_options = list(working.valid_in_cell(next_cell[0], next_cell[1]))
                 if not valid_options:
                     raise SolverImpossible("A next_cell has no valid options.")
@@ -256,4 +252,9 @@ if __name__ == "__main__":
         [6, n, n, 7, n, n, n, 9, 3],
         [n, n, 2, n, 1, n, 8, 6, 7],
     ]
-    print(solve(Board(sudoku)))
+    board = Board(sudoku)
+    results = solve(board)
+    print(f"Solved in {results[1]} iterations.")
+    board.draw()
+    print()
+    results[0].draw()
