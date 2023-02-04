@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import random
+from copy import deepcopy
 from dataclasses import dataclass
 from itertools import chain
 from typing import Sequence
@@ -14,6 +16,10 @@ class InvalidRow(ValueError):
 
 
 class InvalidQuadrent(ValueError):
+    pass
+
+
+class InvalidBoard(ValueError):
     pass
 
 
@@ -46,7 +52,7 @@ class Board:
         except TypeError:
             return self.get_quadrent(__name)
 
-    def __setitem__(self, __name: str, __value: int) -> None:
+    def __setitem__(self, __name: tuple[int, int] | int, __value: int) -> None:
         x, y = int(__name[0]), int(__name[1])
         self.rows[x][y] = __value
 
@@ -79,9 +85,33 @@ class Board:
         if {1, 2, 3, 4, 5, 6, 7, 8, 9} != self.vals_in_quadrent(q):
             raise InvalidQuadrent()
 
-    def cell_valid_options(self, x, y) -> set[int]:
+    def check_board(self, raise_on_invalid: bool = True) -> tuple[bool, list[str]]:
+        errors = []
+        for row in range(9):
+            try:
+                self.check_row(row)
+            except InvalidRow as e:
+                errors.append(str(e))
+        for col in range(9):
+            try:
+                self.check_column(col)
+            except InvalidColumn as e:
+                errors.append(str(e))
+        for quad in range(1, 10):
+            try:
+                self.check_quadrent(quad)
+            except InvalidQuadrent as e:
+                errors.append(str(e))
+        if errors:
+            if raise_on_invalid:
+                raise InvalidBoard(str(errors))
+            return False, errors
+        return True, []
+
+    def valid_in_cell(self, x, y) -> set[int]:
         c = self.valid_in_column(y)
         r = self.valid_in_row(x)
+        quad = self.which_quadrent(x, y)
         q = self.valid_in_quadrent(self.which_quadrent(x, y))
         return c.intersection(r.intersection(q))
 
@@ -126,12 +156,12 @@ class Board:
         raise ValueError(f"Not a valid x, y? {x}, {y}")
 
     def get_quadrent(self, q: int) -> list[list[int]]:
-        x_top = {"ys": 0, "ye": 2}
-        x_mid = {"ys": 3, "ye": 5}
-        x_bottom = {"ys": 6, "ye": 8}
-        y_left = {"xs": 0, "xe": 2}
-        y_mid = {"xs": 3, "xe": 5}
-        y_right = {"xs": 6, "xe": 8}
+        x_top = {"xs": 0, "xe": 2}
+        x_mid = {"xs": 3, "xe": 5}
+        x_bottom = {"xs": 6, "xe": 8}
+        y_left = {"ys": 0, "ye": 2}
+        y_mid = {"ys": 3, "ye": 5}
+        y_right = {"ys": 6, "ye": 8}
 
         quads = {
             1: x_top | y_left,
@@ -148,7 +178,6 @@ class Board:
         lines = []
 
         for x in range(quads[q]["xs"], quads[q]["xe"] + 1):
-            print(x)
             lines.append(
                 [
                     self[x, quad["ys"]],
@@ -167,8 +196,8 @@ class Board:
     def empty_cells(self) -> list[tuple[int, int]]:
         empties = []
         for x, row in enumerate(self.rows):
-            for y, col in enumerate(row):
-                if col is None:
+            for y, cell in enumerate(row):
+                if cell is None:
                     empties.append((x, y))
 
         return empties
@@ -178,8 +207,59 @@ class Board:
         return [x for x in items if x is not None]
 
 
-def solve(board: Board):
+class SolverImpossible(Exception):
+    pass
+
+
+def least_empties(empties, board):
+    empty_cell_choices = []
+    for e in empties:
+        empty_cell_choices.append((e, board.valid_in_cell(e[0], e[1])))
+    return sorted(empty_cell_choices, key=lambda x: len(x[1]))
+
+
+def solve(board: Board) -> tuple[Board, int]:
+    working = deepcopy(board)
+    iteration = 0
+    while not working.check_board(False)[0]:
+        try:
+            print("w1")
+            while working.empty_cells():
+                iteration += 1
+                print("iter: ", iteration)
+                empties = working.empty_cells()
+                next_cell = least_empties(empties, working)[0][0]
+
+                print("w2", next_cell, empties)
+                print(next_cell, working.valid_in_cell(next_cell[0], next_cell[1]))
+                valid_options = list(working.valid_in_cell(next_cell[0], next_cell[1]))
+                if not valid_options:
+                    raise SolverImpossible("A next_cell has no valid options.")
+                working[next_cell] = random.choice(valid_options)
+                # random.choice(working.valid_in_next_cell(next_cell[0], next_cell[1]))
+                # working[next_cell] = random.choice(working.valid_in_next_cell(next_cell[0], next_cell[1]))
+            break
+        except SolverImpossible:
+            working = deepcopy(board)
+
+    return working, iteration
+
     # iterate over empty cells
     # populate one with a valid number
     # repeat
-    pass
+
+
+if __name__ == "__main__":
+    n = None
+    sudoku = [
+        [2, 9, 6, n, 7, 8, 4, 3, n],
+        [5, n, n, 9, 4, 3, 2, 7, n],
+        [n, 4, 3, n, n, n, n, n, n],
+        [n, n, n, n, n, n, 7, n, n],
+        [n, 7, n, 8, n, 5, 6, n, n],
+        [n, n, 9, 4, 6, n, n, n, 8],
+        [9, 1, 7, n, n, 6, 5, 2, n],
+        [6, n, n, 7, n, n, n, 9, 3],
+        [n, n, 2, n, 1, n, 8, 6, 7],
+    ]
+    print(solve(Board(sudoku)))
