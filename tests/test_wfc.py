@@ -39,8 +39,8 @@ sudoku_with_more_populated_board = [
     [1, 2, 3, 4, 5, 6, 7, 8, 9],
     [1, n, 3, 4, n, 6, 7, n, 9],
     [1, 2, 3, 4, 5, 6, 7, 8, 9],
-    [1, 2, 3, 4, 5, 6, 7, 8, 9],
-    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 1, 2, 3],
+    [1, 2, 3, 4, 5, 6, 4, 5, 6],
     [1, 2, 3, 4, 5, 6, 7, 8, 9],
 ]
 
@@ -106,6 +106,15 @@ def test_board_quadrent(board):
     ]
 
 
+def test_board_quadrent_last(board):
+    res = board.get_quadrent(9)
+    assert res == [
+        [5, 2, n],
+        [n, 9, 3],
+        [8, 6, 7],
+    ]
+
+
 def test_board_vals_in_quadrent(board):
     assert board.vals_in_quadrent(5) == {8, 5, 4, 6}
 
@@ -130,3 +139,8 @@ def test_board_empty_cells(board):
         (4, 4),
         (4, 7),
     ]
+
+
+def test_board_check_quadrent(board):
+    board = Board(sudoku_with_more_populated_board.copy())
+    board.check_quadrent(9)

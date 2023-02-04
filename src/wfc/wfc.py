@@ -13,6 +13,10 @@ class InvalidRow(ValueError):
     pass
 
 
+class InvalidQuadrent(ValueError):
+    pass
+
+
 nums = {1, 2, 3, 4, 5, 6, 7, 8, 9}
 
 
@@ -36,9 +40,11 @@ class Board:
     def __getitem__(self, __name: tuple[int, int] | int) -> int | None:
         try:
             x, y = int(__name[0]), int(__name[1])
+            assert 0 <= x <= 8, f"{x} is out of range"
+            assert 0 <= y <= 8, f"{y} is out of range"
             return self.rows[x][y]
         except TypeError:
-            return quadrent(__name)
+            return self.get_quadrent(__name)
 
     def __setitem__(self, __name: str, __value: int) -> None:
         x, y = int(__name[0]), int(__name[1])
@@ -68,6 +74,10 @@ class Board:
     def check_row(self, row: int):
         if {1, 2, 3, 4, 5, 6, 7, 8, 9} != set(self.rows[row]):
             raise InvalidRow()
+
+    def check_quadrent(self, q: int):
+        if {1, 2, 3, 4, 5, 6, 7, 8, 9} != self.vals_in_quadrent(q):
+            raise InvalidQuadrent()
 
     def cell_valid_options(self, x, y) -> set[int]:
         c = self.valid_in_column(y)
@@ -121,7 +131,7 @@ class Board:
         x_bottom = {"ys": 6, "ye": 8}
         y_left = {"xs": 0, "xe": 2}
         y_mid = {"xs": 3, "xe": 5}
-        y_right = {"xs": 6, "xe": 9}
+        y_right = {"xs": 6, "xe": 8}
 
         quads = {
             1: x_top | y_left,
@@ -138,6 +148,7 @@ class Board:
         lines = []
 
         for x in range(quads[q]["xs"], quads[q]["xe"] + 1):
+            print(x)
             lines.append(
                 [
                     self[x, quad["ys"]],
@@ -162,12 +173,13 @@ class Board:
 
         return empties
 
-    def solve(self):
-        # iterate over empty cells
-        # populate one with a valid number
-        # repeat
-        pass
-
     @staticmethod
     def _rm_none(items: Sequence[int]) -> list[int]:
         return [x for x in items if x is not None]
+
+
+def solve(board: Board):
+    # iterate over empty cells
+    # populate one with a valid number
+    # repeat
+    pass
