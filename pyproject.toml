@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "wfc"
+version = "0.1.0"
+description = ""
+authors = ["Tom Faulkner <tomfaulkner@gmail.com>"]
+readme = "README.md"
+packages = [{include = "wfc", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.1"
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
