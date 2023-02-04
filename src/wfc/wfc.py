@@ -236,17 +236,11 @@ def solve(board: Board) -> tuple[Board, int]:
                 if not valid_options:
                     raise SolverImpossible("A next_cell has no valid options.")
                 working[next_cell] = random.choice(valid_options)
-                # random.choice(working.valid_in_next_cell(next_cell[0], next_cell[1]))
-                # working[next_cell] = random.choice(working.valid_in_next_cell(next_cell[0], next_cell[1]))
             break
         except SolverImpossible:
             working = deepcopy(board)
 
     return working, iteration
-
-    # iterate over empty cells
-    # populate one with a valid number
-    # repeat
 
 
 if __name__ == "__main__":
